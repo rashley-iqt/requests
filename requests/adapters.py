@@ -39,6 +39,11 @@ from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
 from .auth import _basic_auth_str
 
 try:
+    from ssl import PROTOCOL_TLS as PROTOCOL
+except ImportError:
+    from ssl import PROTOCOL_SSLv23 as PROTOCOL
+
+try:
     from urllib3.contrib.socks import SOCKSProxyManager
 except ImportError:
     def SOCKSProxyManager(*args, **kwargs):
@@ -609,7 +614,7 @@ def create_ssl_context(pkcs12_data, pkcs12_password_bytes):
     p12 = load_pkcs12(pkcs12_data, pkcs12_password_bytes)
     cert = p12.get_certificate()
     check_cert_not_after(cert)
-    ssl_context = PyOpenSSLContext(PROTOCOL_TLSv1_2)
+    ssl_context = PyOpenSSLContext(PROTOCOL)
     ssl_context._ctx.use_certificate(cert)
     ssl_context._ctx.use_privatekey(p12.get_privatekey())
     return ssl_context
